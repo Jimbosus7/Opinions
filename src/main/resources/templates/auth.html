@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script
+            src="https://kit.fontawesome.com/64d58efce2.js"
+            crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <title>Sign in & Sign up Form</title>
+</head>
+<body>
+<div class="container">
+    <div class="forms-container">
+        <div class="signin-signup">
+            <form action="#" method="post" class="sign-in-form">
+                <h2 class="title">Sign in</h2>
+                <div th:if="${param.logout}">
+                    <div class="logged-out alert-primary">
+                        You have been logged out.
+                    </div>
+                </div>
+                <div class="input-field">
+                    <i class="fas fa-user"></i>
+                    <input type="text" name="username" placeholder="Email" id="email"/>
+                </div>
+                <div class="input-field">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="password" placeholder="Password" id="password"/>
+                </div>
+                <input type="submit" value="Login" class="btn solid"/>
+                <p class="social-text">Or Sign in with social platforms</p>
+                <div class="social-media">
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-google"></i>
+                    </a>
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                </div>
+            </form>
+            <form action="#" class="sign-up-form">
+                <h2 class="title">Sign up</h2>
+                <div>
+                    <p class="success-message"></p>
+                    <p class="error-message"></p>
+                </div>
+                <div class="input-field">
+                    <i class="fas fa-user"></i>
+                    <input type="text" name="username" placeholder="Username" id="name"/>
+                </div>
+                <div class="input-field">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" name="email" placeholder="Email" id="em"/>
+                </div>
+                <div class="input-field">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="password" placeholder="Password" id="pass"/>
+                </div>
+                <input type="submit" class="btn" value="Sign up" />
+                <p class="social-text">Or Sign up with social platforms</p>
+                <div class="social-media">
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-google"></i>
+                    </a>
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="panels-container">
+        <div class="panel left-panel">
+            <div class="content">
+                <h3>New here ?</h3>
+                <p>
+                    Sign Up Sir
+                </p>
+                <button class="btn transparent" id="sign-up-btn">
+                    Sign up
+                </button>
+            </div>
+            <img th:src="@{/img/log.svg}" class="image" alt=""/>
+        </div>
+        <div class="panel right-panel">
+            <div class="content">
+                <h3>One of us ?</h3>
+                <p>
+                    Sign In Here
+                </p>
+                <button class="btn transparent" id="sign-in-btn" onclick="login()">
+                    Sign in
+                </button>
+            </div>
+            <img th:src="@{/img/register.svg}" class="image" alt=""/>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<script>
+    $(".sign-in-form").submit(e => {
+        e.preventDefault();
+
+        console.log($(".sign-in-form").serializeArray())
+        $.ajax({
+            method: "post",
+            url: "/sign-in",
+            dataType: "text",
+            data: $(".sign-in-form").serializeArray(),
+
+            success: function (response) {
+                console.log(response)
+                //the server responds with true credentials are valid and session is created and false if otherwise
+                if (response == "true"){
+                    $(".error-message").text("")
+                    $(".success-message").text("Logged in")
+                    window.location.href = "/";
+                }else{
+                    $(".error-message").text("Bad Credentials")
+                    $(".success-message").text("")
+                    alert("Wrong credentials")
+                }
+            },
+            error: function (errorThrown) {
+                console.log(errorThrown);
+                console.log("error");
+            }
+        });
+    })
+</script>
+<script>
+    $(".sign-up-form").submit(e => {
+        e.preventDefault();
+
+        var model = {
+            "username": document.querySelector('#name').value,
+            "email": document.querySelector('#em').value,
+            "password": document.querySelector('#pass').value
+        };
+        $.ajax(
+            {
+                method: "post",
+                url: "/sign-up",
+                dataType: "text",
+                data: model,
+                success: function (data) {
+                    if (data == "email_is_taken") {
+                        alert("Email is taken");
+                    } else if (data == "username_is_taken") {
+                        alert("Username is taken");
+                    } else if (data == "registered") {
+                        alert("Account registered. you can now sign in");
+                        document.querySelector('#name').value = "";
+                        document.querySelector('#em').value = "";
+                        document.querySelector('#pass').value = "";
+                    }
+                },
+                error: function (errorThrown) {
+                    console.log(errorThrown);
+                    alert("error");
+                }
+            }
+        );
+    })
+</script>
+</body>
+</html>
